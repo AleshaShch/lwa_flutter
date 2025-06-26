@@ -64,10 +64,10 @@ class _MyAppState extends State<MyApp> {
   // logoutSuccess event will indicate the user has logged out
   startStream() {
     _lwaPlugin.getLWAAuthState().listen((event) {
-      if(event.runtimeType == String) {
+      if (event.runtimeType == String) {
         event = jsonDecode(event);
       }
-      switch(event["eventName"]) {
+      switch (event["eventName"]) {
         case "loginSuccess":
           setState(() {
             isLoggedIn = true;
@@ -98,9 +98,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: !isLoggedIn
-              ? const Text('Login With Amazon')
-              : Text("Welcome ${user['name']}"),
+          title: !isLoggedIn ? const Text('Login With Amazon') : Text("Welcome ${user['name']}"),
         ),
         body: Center(
             child: !isLoggedIn
@@ -122,8 +120,7 @@ class _MyAppState extends State<MyApp> {
                             padding: buttonPadding,
                             textColor: Colors.black,
                             onPressed: signOut,
-                            child: Text("Sign Out From Amazon",
-                                style: buttonTextStyle))
+                            child: Text("Sign Out From Amazon", style: buttonTextStyle))
                       ])),
       ),
     );
