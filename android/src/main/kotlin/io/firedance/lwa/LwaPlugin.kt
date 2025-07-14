@@ -3,6 +3,7 @@ package io.firedance.lwa
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Build
+import android.util.Log
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import com.amazon.identity.auth.device.AuthError
@@ -39,7 +40,6 @@ class LoginResponse(
   private val postalCode: String?
 )
 
-/** LwaPlugin */
 class LwaPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel : MethodChannel
   private lateinit var eventChannel: EventChannel
@@ -109,6 +109,7 @@ class LwaPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       }
 
       override fun onError(ae: AuthError) {
+        Log.d("LwaPlugin", "onError $ae")
         activity.runOnUiThread {
           broadcastError( buildJson(LoginResponse(
             "loginError",
@@ -139,18 +140,12 @@ class LwaPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   fun signIn(@NonNull result: Result) {
-    val builder = AuthorizeRequest
-            .Builder(requestContext)
-
+    val builder = AuthorizeRequest.Builder(requestContext)
     builder.addScope(ProfileScope.profile())
-    if(scopes.contains("postal_code")) {
-      builder.addScope(ProfileScope.postalCode())
-    }
 
     val authorizeRequest: AuthorizeRequest = builder.build()
+    AuthorizationManager.authorize(authorizeRequest)
 
-    AuthorizationManager
-      .authorize(authorizeRequest)
     result.success("ok")
   }
 
