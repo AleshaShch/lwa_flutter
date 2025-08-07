@@ -3,6 +3,7 @@ package io.firedance.lwa
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import io.flutter.plugin.common.EventChannel
 
 class EventChannelHandler : EventChannel.StreamHandler {
@@ -23,10 +24,12 @@ class EventChannelHandler : EventChannel.StreamHandler {
     }
 
     fun onSuccess(data: String) {
+        Log.d("EventChannelHandler", "onSuccess: $data")
         eventSink?.success(data)
     }
 
     fun onError(data: String) {
-        eventSink?.success(0)
+        Log.d("EventChannelHandler", "onError: $data")
+        eventSink?.success(data)
     }
 }

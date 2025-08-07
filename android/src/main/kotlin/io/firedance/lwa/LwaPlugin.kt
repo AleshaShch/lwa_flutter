@@ -21,23 +21,12 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 
 
-/**
- * LoginResponse
- *
- * @property eventName
- * @property user_id
- * @property email
- * @property name
- * @property user
- * @property accessToken
- */
 class LoginResponse(
-  private val eventName: String,
-  private val user_id: String?,
-  private val email: String?,
-  private val name: String?,
-  private val accessToken: String?,
-  private val postalCode: String?
+  val eventName: String,
+  val user_id: String?,
+  val email: String?,
+  val name: String?,
+  val accessToken: String?,
 )
 
 class LwaPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -79,6 +68,7 @@ class LwaPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   fun broadcastSuccess(result: String) {
+    Log.d("LwaPlugin", "broadcastSuccess $result")
     eventChannelHandler?.onSuccess(result.toString())
   }
 
@@ -91,19 +81,33 @@ class LwaPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     return gson.toJson(response)
   }
 
+  fun buildJsonManual(response: LoginResponse): String {
+    return """
+    {
+        "eventName": "${response.eventName}",
+        "user_id": "${response.user_id ?: ""}",
+        "email": "${response.email ?: ""}",
+        "name": "${response.name ?: ""}",
+        "accessToken": "${response.accessToken ?: ""}"
+    }
+    """.trimIndent()
+  }
+
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
     activity = binding.activity
     requestContext = RequestContext.create(activity.applicationContext)
     requestContext.registerListener(object : AuthorizeListener() {
       override fun onSuccess(result: AuthorizeResult) {
+        Log.d("LwaPlugin", "AuthorizeListener.onSuccess(), result: ${result.user.userId}")
         activity.runOnUiThread {
-          broadcastSuccess(buildJson(LoginResponse(
-            "loginSuccess",
-            result.user.userId,
-            result.user.userEmail,
-            result.user.userName,
-            result.accessToken,
-            result.user.userPostalCode
+          broadcastSuccess(
+            buildJsonManual(
+              LoginResponse(
+                "loginSuccess",
+                result.user.userId,
+                result.user.userEmail,
+                result.user.userName,
+                result.accessToken,
           )))
         }
       }
@@ -117,7 +121,6 @@ class LwaPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             null,
             null,
             null,
-            null
           )))
         }
       }
@@ -131,7 +134,6 @@ class LwaPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
               null,
               null,
               null,
-              null
             )
           ))
         }
@@ -159,7 +161,6 @@ class LwaPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
               null,
               null,
               null,
-              null,
               null
             )))
           }
@@ -171,7 +172,6 @@ class LwaPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             null,
             null,
             null,
-            null
           )))
         }
       })
